@@ -1,0 +1,44 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Clinical Normalization Engine{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.2rem; font-weight: 700;">NLP Normalizer</h1>
+        <p style="color: var(--text-muted);">Mapping colloquial symptoms to clinical terminology</p>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-spell-check" style="color: var(--accent-blue); margin-right: 15px;"></i> Normalization Dictionary</h2>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Total: {{ normalization|length }} identifiers</div>
+    </div>
+
+    {% if normalization %}
+    <div style="overflow-x: auto;">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Colloquial Phrase</th>
+                    <th>Clinical Replacement</th>
+                    <th>ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in normalization %}
+                <tr>
+                    <td><div style="color: var(--text-muted); font-size: 0.9rem;">"{{ item.phrase }}"</div></td>
+                    <td><strong style="color: var(--accent-blue);">{{ item.replacement }}</strong></td>
+                    <td style="color: var(--text-muted);">#{{ item.id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted); padding: 50px;">Dictionary is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

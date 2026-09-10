@@ -1,0 +1,56 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.2rem; font-weight: 700;">Human Resources</h1>
+        <p style="color: var(--text-muted);">Manage institution and patient profiles</p>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-users-cog" style="color: var(--accent-blue); margin-right: 15px;"></i> Registered Members</h2>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Total: {{ users_list|length }} accounts</div>
+    </div>
+
+    {% if users_list %}
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>Institutional Role</th>
+                <th>Clinical Status</th>
+                <th>Admin Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users_list %}
+            <tr>
+                <td><strong>{{ u.username }}</strong></td>
+                <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: white;">{{ u.role }}</span></td>
+                <td>
+                    <span class="status-badge status-{{ u.status.lower() }}">
+                        {{ u.status }}
+                    </span>
+                </td>
+                <td style="display: flex; gap: 15px;">
+                    {% if u.status != 'BLOCKED' %}
+                        <a href="{{ url_for('toggle_user_status', user_id=u.id) }}" class="status-badge" style="background: var(--accent-amber); color: black; text-decoration: none;"><i class="fas fa-ban"></i> Block Account</a>
+                    {% else %}
+                        <a href="{{ url_for('toggle_user_status', user_id=u.id) }}" class="status-badge" style="background: var(--accent-emerald); color: white; text-decoration: none;"><i class="fas fa-undo"></i> Restore Profile</a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('delete_user', user_id=u.id) }}" class="status-badge" style="background: var(--accent-rose); color: white; text-decoration: none;" onclick="return confirm('Security Check: Permanently delete this account?')"><i class="fas fa-trash-alt"></i> Purge</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted); padding: 50px;">Personnel record is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

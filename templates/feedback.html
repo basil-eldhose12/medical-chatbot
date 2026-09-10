@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-wrapper">
+    <div class="auth-card glass-card">
+        <div class="auth-header">
+            <i class="fas fa-star-half-alt"></i>
+            <h1>Submit Feedback</h1>
+            <p>Tell us about your experience</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="status-badge status-{{ category }}" style="margin-bottom: 20px; display: block; text-align: center;">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group" style="text-align: center;">
+                <label style="margin-bottom: 15px; display: block;">How would you rate your experience?</label>
+                <div class="feedback-stars">
+                    <input type="radio" id="st5" name="rating" value="5" required /><label for="st5"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="st4" name="rating" value="4" /><label for="st4"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="st3" name="rating" value="3" /><label for="st3"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="st2" name="rating" value="2" /><label for="st2"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="st1" name="rating" value="1" /><label for="st1"><i class="fas fa-star"></i></label>
+                </div>
+            </div>
+            
+            <style>
+                .feedback-stars {
+                    display: flex;
+                    flex-direction: row-reverse;
+                    justify-content: center;
+                    gap: 10px;
+                    margin: 20px 0;
+                }
+                .feedback-stars input { display: none; }
+                .feedback-stars label {
+                    font-size: 2.2rem;
+                    color: rgba(255, 255, 255, 0.1);
+                    cursor: pointer;
+                    transition: color 0.2s, transform 0.2s;
+                }
+                .feedback-stars input:checked ~ label,
+                .feedback-stars label:hover,
+                .feedback-stars label:hover ~ label {
+                    color: var(--accent-amber);
+                    text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+                }
+                .feedback-stars label:hover { transform: scale(1.2); }
+            </style>
+
+            <div class="form-group">
+                <label for="comment">Tell us more</label>
+                <textarea id="comment" name="comment" rows="4" placeholder="Your feedback helps us provide better care..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-premium">Submit Your Insights</button>
+        </form>
+
+        <div style="margin-top: 25px; text-align: center;">
+            <a href="{{ url_for('patient_dashboard' if session.get('role') == 'PATIENT' else 'hospital_dashboard') }}" style="color: var(--accent-blue); text-decoration: none; font-size: 0.9rem;">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

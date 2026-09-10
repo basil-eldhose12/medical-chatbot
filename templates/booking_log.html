@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Log | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="padding: 40px; background: radial-gradient(circle at top left, #1a1a2e, #16213e, #0f3460);">
+    <div class="auth-card glass-card" style="max-width: 800px; margin: 0 auto;">
+        <div class="auth-header">
+            <i class="fas fa-history"></i>
+            <h1>Booking Activity Log</h1>
+            <p>Track your appointment requests</p>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <a href="{{ url_for('patient_dashboard') }}" style="color: var(--accent-blue); text-decoration: none;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+
+        {% if logs %}
+        <div class="premium-table">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
+                <thead>
+                    <tr style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;">
+                        <th style="padding: 15px;">Date & Time</th>
+                        <th style="padding: 15px;">Action</th>
+                        <th style="padding: 15px;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr style="background: rgba(255, 255, 255, 0.03); border-radius: 12px; overflow: hidden;">
+                        <td style="padding: 20px; border-radius: 12px 0 0 12px; border-left: 3px solid var(--accent-blue);">{{ log.timestamp }}</td>
+                        <td style="padding: 20px;"><strong style="color: var(--text-primary);">{{ log.action }}</strong></td>
+                        <td style="padding: 20px; border-radius: 0 12px 12px 0;">{{ log.details }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; color: var(--text-muted); padding: 50px;">
+            <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <p>No activity recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

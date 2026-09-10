@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-wrapper" style="overflow: hidden; background: url('{{ url_for('static', filename='images/hero.png') }}') no-repeat center center fixed; background-size: cover;">
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(5, 5, 16, 0.5) 0%, rgba(2, 2, 5, 0.95) 100%); z-index: -1;"></div>
+    <div id="blob1" class="dynamic-blob"></div>
+    <div id="blob2" class="dynamic-blob"></div>
+    
+    <div class="auth-card glass-card reveal active" style="animation: slideUp 1s cubic-bezier(0.2, 0.8, 0.2, 1); border: 1.5px solid var(--glass-border); box-shadow: 0 40px 100px -20px rgba(0,0,0,0.7);">
+        <div class="auth-header">
+            <a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">
+                <i class="fas fa-stethoscope" style="color: var(--accent-blue);"></i>
+                <h1>HealthCare AI</h1>
+            </a>
+            <p>Join our secure medical network</p>
+            <div style="margin-top: 15px;">
+                <a href="{{ url_for('chat_ui') }}" style="color: var(--accent-blue); text-decoration: none; font-size: 0.85rem; background: rgba(0, 123, 255, 0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(0, 123, 255, 0.2);"><i class="fas fa-robot"></i> Clinical AI Chat</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="status-badge status-{{ category }}" style="margin-bottom: 20px; display: block; text-align: center;">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="registerForm">
+            <div class="form-group">
+                <label for="username">Choose a Username</label>
+                <div style="position: relative;">
+                    <i class="fas fa-user" style="position: absolute; left: 18px; top: 16px; color: var(--text-muted);"></i>
+                    <input type="text" id="username" name="username" required style="padding-left: 50px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div style="position: relative;">
+                    <i class="fas fa-envelope" style="position: absolute; left: 18px; top: 16px; color: var(--text-muted);"></i>
+                    <input type="email" id="email" name="email" required style="padding-left: 50px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="phone">Mobile Number</label>
+                <div style="position: relative;">
+                    <i class="fas fa-phone" style="position: absolute; left: 18px; top: 16px; color: var(--text-muted);"></i>
+                    <input type="tel" id="phone" name="phone" required style="padding-left: 50px;" placeholder="e.g. +1 234 567 8900">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <div style="position: relative;">
+                    <i class="fas fa-calendar" style="position: absolute; left: 18px; top: 16px; color: var(--text-muted);"></i>
+                    <input type="date" id="dob" name="dob" max="{{ today_date }}" required style="padding-left: 50px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <small style="color: var(--text-muted); display: block; margin-bottom: 6px; font-size: 0.78rem;">Min 8 chars, 1 uppercase, 1 number, 1 special char (@$!%*?&)</small>
+                <div style="position: relative;">
+                    <i class="fas fa-key" style="position: absolute; left: 18px; top: 16px; color: var(--text-muted);"></i>
+                    <input type="password" id="password" name="password" required style="padding-left: 50px;" placeholder="e.g. MyPass@123">
+                </div>
+            </div>
+            <div id="validation-errors" style="color: var(--accent-rose); font-size: 0.85rem; margin-bottom: 15px; text-align: left; display: none; background: rgba(255,45,85,0.1); padding: 10px; border-radius: 8px;"></div>
+            <button type="submit" class="btn-premium">Create Patient Account <i class="fas fa-user-check"></i></button>
+        </form>
+
+        <div style="margin-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+            <p>Already joined? <a href="{{ url_for('login') }}" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">Sign In</a></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('validation-errors');
+            let errors = [];
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errors.push("• Invalid email format (e.g. user@example.com).");
+            }
+
+            // Relaxed phone: allows digits, spaces, dashes, parentheses, +
+            const phoneRegex = /^[\+\d][\d\s\-\(\)]{8,19}$/;
+            if (!phoneRegex.test(phone.trim())) {
+                errors.push("• Phone must be 9-20 digits (e.g. +92 300 1234567 or 03001234567).");
+            }
+
+            const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!strongPasswordRegex.test(password)) {
+                errors.push("• Password: min 8 chars, 1 uppercase, 1 lowercase, 1 number & 1 special char (@$!%*?&).");
+            }
+            
+            const dob = document.getElementById('dob').value;
+            const today = new Date().toISOString().split('T')[0];
+            if (dob && dob > today) {
+                errors.push("• Date of birth cannot be in the future.");
+            }
+
+            if (errors.length > 0) {
+                e.preventDefault();
+                errorDiv.innerHTML = errors.join('<br>');
+                errorDiv.style.display = 'block';
+                errorDiv.scrollIntoView({behavior: 'smooth', block: 'center'});
+            } else {
+                errorDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

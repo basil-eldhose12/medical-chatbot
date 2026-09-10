@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="padding: 30px; overflow-x: hidden;">
+    <div id="blob1" class="dynamic-blob"></div>
+    <div id="blob2" class="dynamic-blob"></div>
+
+    <div class="emergency-strip reveal active" style="margin-bottom: 30px; border-radius: 15px; animation: slideUp 0.8s ease-out;">
+        <i class="fas fa-exclamation-triangle"></i> MEDICAL EMERGENCY IN KERALA: CALL 108 OR 112
+    </div>
+
+    <div class="dashboard-header-premium reveal active" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 0 10px; animation: slideUp 1s ease-out;">
+        <div>
+            <h1 style="font-family: 'Outfit'; font-size: 2.8rem; font-weight: 800; letter-spacing: -1px;">Institution: <span style="background: linear-gradient(to right, var(--accent-purple), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ username }}</span></h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Managing clinical pathways and staff intelligence</p>
+        </div>
+        <div style="display: flex; gap: 15px;">
+             <a href="{{ url_for('manage_staff') }}" class="btn-premium" style="width: auto; background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.2); padding: 12px 25px; border-radius: 15px;"><i class="fas fa-user-md" style="margin-right: 8px;"></i> Manage Staff</a>
+             <a href="{{ url_for('logout') }}" class="btn-premium" style="width: auto; background: rgba(244, 63, 94, 0.1); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.2); padding: 12px 25px; border-radius: 15px;"><i class="fas fa-power-off"></i></a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid reveal active" style="animation: slideUp 1.2s ease-out;">
+        <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+            <i class="fas fa-user-md" style="color: var(--accent-blue); filter: drop-shadow(0 0 10px var(--accent-blue));"></i>
+            <div class="stat-label">Active Consultants</div>
+            <div class="stat-value" style="font-size: 1.8rem;">PROVISIONED</div>
+        </div>
+        <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+            <i class="fas fa-hospital-symbol" style="color: var(--accent-emerald); filter: drop-shadow(0 0 10px var(--accent-emerald)); position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05;"></i>
+            <div class="stat-label">Daily Patient Load</div>
+            <div class="stat-value" style="color: var(--accent-emerald); filter: drop-shadow(0 0 10px var(--accent-emerald));">{{ appointments|selectattr('status', 'equalto', 'APPROVED')|list|length }}</div>
+        </div>
+        <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+            <i class="fas fa-microchip" style="color: var(--accent-purple); filter: drop-shadow(0 0 10px var(--accent-purple));"></i>
+            <div class="stat-label">System Integrity</div>
+            <div class="stat-value" style="font-size: 1.8rem; color: var(--accent-emerald);">SECURE</div>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
+            <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-hand-holding-medical" style="color: var(--accent-emerald); margin-right: 10px;"></i> Approved Clinical Schedules</h2>
+            <div style="font-size: 0.8rem; color: var(--text-muted); background: rgba(16, 185, 129, 0.1); padding: 5px 15px; border-radius: 999px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                <i class="fas fa-shield-alt"></i> Verified by Admin
+            </div>
+        </div>
+
+        {% if appointments %}
+        <div style="overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Assigned Consultant</th>
+                        <th>Visit Timing</th>
+                        <th>Clinical Status</th>
+                        <th>Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-user" style="color: var(--accent-blue);"></i>
+                                <span>{{ app.patient_name }}</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; line-height: 1.4;">
+                                {% if app.patient_dob %}<i class="fas fa-birthday-cake"></i> {{ app.patient_dob }}<br>{% endif %}
+                                {% if app.patient_phone %}<i class="fas fa-phone"></i> {{ app.patient_phone }}<br>{% endif %}
+                                {% if app.patient_email %}<i class="fas fa-envelope"></i> {{ app.patient_email }}{% endif %}
+                            </div>
+                        </td>
+                        <td><strong>{{ app.doctor_name or 'N/A' }}</strong></td>
+                        <td>
+                            <div style="font-size: 0.9rem;">{{ app.date }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);"><i class="far fa-clock"></i> {{ app.time }}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ app.status.lower() }}">
+                                {{ app.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if app.payment_status == 'PAID' %}
+                            <div style="font-weight: 700; font-size: 1.1rem; color: #10b981;">&#8377;200</div>
+                            <div style="margin-top: 4px;">
+                                <span class="status-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); font-size: 0.72rem;">
+                                    <i class="fas fa-check-circle"></i> RECEIVED
+                                </span>
+                            </div>
+                            {% elif app.status == 'PAYMENT_PENDING' %}
+                            <div style="font-weight: 700; font-size: 1.1rem; color: #3b82f6;">&#8377;200</div>
+                            <div style="margin-top: 4px;">
+                                <span class="status-badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); font-size: 0.72rem;">
+                                    <i class="fas fa-clock"></i> AWAITING PAYMENT
+                                </span>
+                            </div>
+                            {% elif app.payment_status == 'CANCELLED' %}
+                            <div style="font-weight: 700; font-size: 1.1rem; color: #ef4444; opacity: 0.5; text-decoration: line-through;">&#8377;200</div>
+                            <div style="margin-top: 4px;">
+                                <span class="status-badge" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); font-size: 0.72rem;">
+                                    <i class="fas fa-times-circle"></i> CANCELLED
+                                </span>
+                            </div>
+                            {% else %}
+                            <div style="font-weight: 700; font-size: 1.1rem; color: #f59e0b;">&#8377;200</div>
+                            <div style="margin-top: 4px;">
+                                <span class="status-badge" style="background: rgba(234,179,8,0.15); color: #f59e0b; border: 1px solid rgba(234,179,8,0.3); font-size: 0.72rem;">
+                                    <i class="fas fa-hourglass-half"></i> PENDING
+                                </span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.status in ('REJECTED', 'COMPLETED') %}
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">
+                                    <i class="fas fa-lock"></i>
+                                    {{ 'Rejected' if app.status == 'REJECTED' else 'Completed' }}
+                                </span>
+                            {% elif app.status == 'CONFIRMED' %}
+                                {# Patient paid — only allow marking COMPLETED #}
+                                <form action="{{ url_for('update_appointment_status', app_id=app.id) }}" method="POST">
+                                    <input type="hidden" name="status" value="COMPLETED">
+                                    <button type="submit" class="btn-premium" style="width:auto;padding:6px 14px;font-size:0.8rem;background:var(--accent-purple);">
+                                        <i class="fas fa-flag-checkered"></i> Mark Completed
+                                    </button>
+                                </form>
+                            {% elif app.status == 'PAYMENT_PENDING' %}
+                                {# Already approved — show green label + reject option only #}
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <span style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:4px 12px;font-size:0.78rem;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+                                        <i class="fas fa-check-circle"></i> Approved — Awaiting Payment
+                                    </span>
+                                    <form action="{{ url_for('update_appointment_status', app_id=app.id) }}" method="POST">
+                                        <button type="submit" name="status" value="REJECTED" class="btn-premium" style="width:auto;padding:5px 12px;font-size:0.75rem;background:var(--accent-rose);">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                {# PENDING — allow approve or reject #}
+                                <form action="{{ url_for('update_appointment_status', app_id=app.id) }}" method="POST" style="display:flex;gap:8px;">
+                                    <button type="submit" name="status" value="APPROVED" class="btn-premium" style="width:auto;padding:6px 12px;font-size:0.78rem;background:var(--accent-emerald);">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button type="submit" name="status" value="REJECTED" class="btn-premium" style="width:auto;padding:6px 12px;font-size:0.78rem;background:var(--accent-rose);">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: var(--text-muted);">
+            <i class="fas fa-notes-medical" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+            <p>No verified appointments for today.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

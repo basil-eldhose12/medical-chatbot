@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCare AI | Clinical Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="emergency-strip">
+        <i class="fas fa-exclamation-triangle"></i> Kerala Medical Emergency: Call 108 or 112 immediately.
+    </div>
+
+    <div class="chat-wrapper glass-card" style="margin-top: 20px;">
+        <header class="chat-header-premium">
+            <a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">
+                <h1 style="font-family: 'Outfit'; font-weight: 700; display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-stethoscope" style="color: var(--accent-blue);"></i> HealthCare AI <small style="font-size: 0.6rem; opacity: 0.6; font-weight: 400;">v3.1 PREMIUM</small>
+                </h1>
+            </a>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                {% if session.get('username') %}
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Welcome, <strong style="color: white;">{{ session['username'] }}</strong></span>
+                    <a href="{{ url_for('patient_dashboard' if session['role'] == 'PATIENT' else 'hospital_dashboard' if session['role'] == 'HOSPITAL' else 'admin_dashboard') }}" style="color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; font-weight: 600;"><i class="fas fa-columns"></i> Dashboard</a>
+                    <a href="{{ url_for('logout') }}" style="color: var(--accent-rose); text-decoration: none; font-size: 0.85rem;"><i class="fas fa-power-off"></i> Logout</a>
+                {% else %}
+                    <a href="/login" style="color: var(--text-primary); text-decoration: none; font-size: 0.9rem; font-weight: 600; background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 10px; border: 1px solid var(--glass-border);"><i class="fas fa-user-circle"></i> Login / Portal</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <main class="chat-content" id="chatbox">
+            <div class="msg-bubble msg-bot">
+                Hello. I am your AI clinical assistant. Please describe the symptoms you are experiencing in detail.
+            </div>
+        </main>
+
+        <div id="typing" style="display: none; padding: 0 30px 15px; color: var(--text-muted); font-size: 0.85rem; font-style: italic;">
+            <i class="fas fa-atom fa-spin"></i> Analyzing clinical data...
+        </div>
+
+        <form id="chat-form" style="padding: 25px 30px; border-top: 1px solid var(--glass-border); display: flex; gap: 15px; align-items: center;">
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="userInput" placeholder="Type symptoms or 'book appointment'..." style="width: 100%; padding: 15px 20px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 15px; color: white; padding-right: 50px;" />
+                <i class="fas fa-keyboard" style="position: absolute; right: 20px; top: 50%; translate: 0 -50%; color: var(--text-muted); pointer-events: none;"></i>
+            </div>
+            <button type="button" id="sendBtn" class="btn-premium" style="width: auto; padding: 12px 25px; align-self: stretch;">
+                <span>Analyze</span> <i class="fas fa-bolt"></i>
+            </button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const $chatbox = $('#chatbox');
+            const $userInput = $('#userInput');
+            const $typing = $('#typing');
+
+            function scrollToBottom() {
+                $chatbox.animate({ scrollTop: $chatbox[0].scrollHeight }, 500);
+            }
+
+            function formatBotResponse(rawText) {
+                if (rawText.includes('🚨 **EMERGENCY')) {
+                    return `<div class="msg-bubble msg-bot" style="border: 1px solid var(--accent-rose); background: rgba(244, 63, 94, 0.05);">
+                        <div style="color: var(--accent-rose); font-weight: 800; margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> EMERGENCY ALERT</div>
+                        <div style="color: white; line-height:1.6;">${rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
+                    </div>`;
+                }
+
+                if (rawText.includes('## 🏥 Clinical Diagnostic Report') || rawText.includes('Assessment**')) {
+                    // Process formatted clinical report
+                    let html = `<div class="msg-bubble msg-bot" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); padding: 25px;">`;
+                    html += `<div style="display:flex; align-items:center; gap:10px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
+                                <i class="fas fa-file-medical-alt" style="color: var(--accent-blue); font-size: 1.3rem;"></i>
+                                <span style="font-family:'Outfit'; font-weight:700; font-size: 1.1rem;">Clinical Analysis Report</span>
+                             </div>`;
+                    
+                    const formatted = rawText.replace(/\n/g, '<br>')
+                                           .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent-blue)">$1</strong>')
+                                           .replace(/Severity: (Emergency|Critical|Serious)/g, 'Severity: <span class="status-badge status-rejected">$1</span>')
+                                           .replace(/Severity: (Normal|Minor)/g, 'Severity: <span class="status-badge status-approved">$1</span>');
+                    
+                    html += `<div style="line-height:1.7; font-size:0.95rem;">${formatted}</div></div>`;
+                    return html;
+                }
+
+                return `<div class="msg-bubble msg-bot">${rawText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent-blue)">$1</strong>')}</div>`;
+            }
+
+            function addMessage(text, side) {
+                const formatted = side === 'bot' ? formatBotResponse(text) : `<div class="msg-bubble msg-user">${text}</div>`;
+                $chatbox.append(formatted);
+                scrollToBottom();
+            }
+
+            window.sendMessage = function() {
+                const msg = $userInput.val().trim();
+                if (!msg) return;
+
+                addMessage(msg, 'user');
+                $userInput.val('');
+                $typing.show();
+                scrollToBottom();
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $typing.hide();
+                    if (data.response) {
+                        addMessage(data.response, 'bot');
+                        if (data.specialist && data.specialist !== "N/A") {
+                           // Logic for suggesting doctors can go here if needed
+                        }
+                    }
+                })
+                .catch(err => {
+                    $typing.hide();
+                    addMessage("Technical error occurred. Please try again.", 'bot');
+                });
+            };
+
+            $('#chat-form').on('submit', function(e) {
+                e.preventDefault();
+                sendMessage();
+            });
+            $('#sendBtn').click(sendMessage);
+            $userInput.keypress(function(e) {
+                if (e.which === 13) { e.preventDefault(); sendMessage(); }
+            });
+        });
+    </script>
+</body>
+</html>

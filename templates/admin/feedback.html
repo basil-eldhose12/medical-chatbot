@@ -1,0 +1,68 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Patient Feedback Monitoring{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.2rem; font-weight: 700;">Customer Insights</h1>
+        <p style="color: var(--text-muted);">Real-time monitoring of clinical satisfaction</p>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-star-half-alt" style="color: var(--accent-amber); margin-right: 15px;"></i> Patient Feedback Stream</h2>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Aggregated Intelligence</div>
+    </div>
+
+    {% if feedback_list %}
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Patient Profile</th>
+                <th>Provider Institution</th>
+                <th>Clinical Professional</th>
+                <th>Rating Analysis</th>
+                <th>Submission Narrative</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feed in feedback_list %}
+            <tr>
+                <td><strong>{{ feed.patient_name }}</strong></td>
+                <td>
+                    {% if feed.appointment_id %}
+                        <span style="color: var(--accent-purple);"><i class="fas fa-hospital"></i> {{ feed.hospital_name }}</span>
+                    {% else %}
+                        <span style="color: var(--text-muted); font-style: italic;">General Platform</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if feed.appointment_id %}
+                        <strong>{{ feed.doctor_name or 'N/A' }}</strong>
+                    {% else %}
+                        <span style="color: var(--text-muted); font-style: italic;">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="color: var(--accent-amber); font-size: 1rem; border: 1px solid rgba(245, 158, 11, 0.2); padding: 5px 15px; border-radius: 999px; background: rgba(245, 158, 11, 0.05);">
+                        {% for i in range(feed.rating) %}<i class="fas fa-star"></i>{% endfor %}
+                        {% for i in range(5 - feed.rating) %}<i class="far fa-star" style="opacity: 0.3;"></i>{% endfor %}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); padding: 5px 0 0 10px;">{{ feed.rating }}/5 Confidence</div>
+                </td>
+                <td style="max-width: 300px;">
+                    <blockquote style="font-style: italic; color: var(--text-muted); font-size: 0.9rem; border-left: 2px solid var(--accent-purple); padding-left: 15px;">
+                        "{{ feed.comment }}"
+                    </blockquote>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted); padding: 50px;">No patient insights recorded.</p>
+    {% endif %}
+</div>
+{% endblock %}

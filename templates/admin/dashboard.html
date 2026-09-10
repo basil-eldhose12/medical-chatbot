@@ -1,0 +1,119 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}System Overview{% endblock %}
+
+{% block content %}
+<div class="admin-header reveal active" style="animation: slideUp 0.8s ease-out; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.8rem; font-weight: 800; letter-spacing: -1px;">Clinical <span style="background: linear-gradient(to right, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Operations</span></h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Welcome back, System Intelligence Overseer</p>
+    </div>
+    <div style="font-size: 0.85rem; padding: 12px 25px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 999px; backdrop-filter: blur(10px);">
+        <i class="fas fa-microchip" style="color: var(--accent-blue);"></i> Node Status: <span style="color: var(--accent-emerald); font-weight: 700;">SECURE</span>
+    </div>
+</div>
+
+<div class="dashboard-grid reveal active" style="animation: slideUp 1s ease-out; margin-bottom: 40px;">
+    <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+        <i class="fas fa-user-shield" style="color: var(--accent-blue); filter: drop-shadow(0 0 10px var(--accent-blue));"></i>
+        <div class="stat-label">Verified Patients</div>
+        <div class="stat-value">{{ stats.patients }}</div>
+    </div>
+    <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+        <i class="fas fa-hospital" style="color: var(--accent-purple); filter: drop-shadow(0 0 10px var(--accent-purple));"></i>
+        <div class="stat-label">Active Institutions</div>
+        <div class="stat-value" style="color: var(--accent-purple);">{{ stats.hospitals }}</div>
+    </div>
+    <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+        <i class="fas fa-user-clock" style="color: var(--accent-rose); filter: drop-shadow(0 0 10px var(--accent-rose));"></i>
+        <div class="stat-label">Pending Approval</div>
+        <div class="stat-value" style="color: var(--accent-rose);">{{ stats.pending_users }}</div>
+    </div>
+    <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+        <i class="fas fa-clipboard-check" style="color: var(--accent-amber); filter: drop-shadow(0 0 10px var(--accent-amber));"></i>
+        <div class="stat-label">System Load</div>
+        <div class="stat-value" style="color: var(--accent-emerald); font-size: 1.8rem;">NOMINAL</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+    <!-- Pending Users -->
+    <div class="glass-card">
+        <h3 style="font-family: 'Outfit'; margin-bottom: 25px;"><i class="fas fa-user-clock" style="color: var(--accent-rose); margin-right: 15px;"></i> User Approval Queue</h3>
+        {% if pending_users %}
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Identity</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in pending_users %}
+                <tr>
+                    <td><strong>{{ user.username }}</strong></td>
+                    <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: white;">{{ user.role }}</span></td>
+                    <td style="display: flex; gap: 10px;">
+                        <a href="{{ url_for('approve_user', user_id=user.id) }}" class="status-badge" style="background: var(--accent-emerald); color: white; text-decoration: none;">Approve</a>
+                        <a href="{{ url_for('reject_user', user_id=user.id) }}" class="status-badge" style="background: var(--accent-rose); color: white; text-decoration: none;">Reject</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px;">No pending identities.</p>
+        {% endif %}
+    </div>
+
+    <!-- Pending Appointments -->
+    <div class="glass-card">
+        <h3 style="font-family: 'Outfit'; margin-bottom: 25px;"><i class="fas fa-calendar-alt" style="color: var(--accent-amber); margin-right: 15px;"></i> Consultation Requests</h3>
+        {% if pending_appts %}
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Patient/Host</th>
+                    <th>Details</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in pending_appts %}
+                <tr>
+                    <td>
+                        <div style="font-size: 0.9rem;"><strong>{{ app.patient_name }}</strong></div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; line-height: 1.4;">
+                            {% if app.patient_dob %}<i class="fas fa-birthday-cake"></i> {{ app.patient_dob }}<br>{% endif %}
+                            {% if app.patient_phone %}<i class="fas fa-phone"></i> {{ app.patient_phone }}<br>{% endif %}
+                            {% if app.patient_email %}<i class="fas fa-envelope"></i> {{ app.patient_email }}<br>{% endif %}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--accent-emerald); margin-top: 5px;">📍 {{ app.hospital_name }}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.8rem;">{{ app.doctor_name or 'N/A' }}</div>
+                        <div style="font-size: 0.75rem; color: var(--accent-blue);">{{ app.date }} / {{ app.time }}</div>
+                        <div style="margin-top: 6px;">
+                            {% if app.payment_status == 'PAID' %}
+                                <span class="status-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); font-size: 0.7rem;"><i class="fas fa-check-circle"></i> &#8377;200 PAID</span>
+                            {% elif app.payment_status == 'CANCELLED' %}
+                                <span class="status-badge" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); font-size: 0.7rem;"><i class="fas fa-times-circle"></i> CANCELLED</span>
+                            {% else %}
+                                <span class="status-badge" style="background: rgba(234,179,8,0.15); color: #f59e0b; border: 1px solid rgba(234,179,8,0.3); font-size: 0.7rem;"><i class="fas fa-clock"></i> UNPAID</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ app.status.lower() }}">{{ app.status }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px;">Clinical queue is empty.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

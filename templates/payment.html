@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | HealthCare AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .logo-bar .pulse {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #00d4ff, #0065ff);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .logo-bar span { color: #fff; font-size: 18px; font-weight: 700; }
+
+        .order-summary {
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .order-summary h3 { color: #94b8cc; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .order-row span { color: #b0c8d5; font-size: 14px; }
+        .order-row .val { color: #e0f0f8; font-weight: 500; }
+        .order-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 12px 0; }
+        .total-row { display: flex; justify-content: space-between; align-items: center; }
+        .total-row .label { color: #fff; font-weight: 600; font-size: 15px; }
+        .total-row .amount {
+            color: #00d4ff;
+            font-weight: 700;
+            font-size: 22px;
+        }
+
+        /* Tab Toggle */
+        .tab-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            background: none; border: none;
+            color: #7a9ab0;
+            font-size: 14px; font-weight: 500;
+            padding: 10px 0;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0065ff, #00a8ff);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0,100,255,0.35);
+        }
+
+        /* Forms */
+        .pay-form { display: none; }
+        .pay-form.active { display: block; }
+
+        .form-group { margin-bottom: 18px; }
+        label { display: block; color: #94b8cc; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; margin-bottom: 7px; text-transform: uppercase; }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: #e0f0f8;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            padding: 12px 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #00a8ff;
+            box-shadow: 0 0 0 3px rgba(0,168,255,0.15);
+        }
+        input::placeholder { color: #4a6a7a; }
+
+        .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .upi-hint { color: #7a9ab0; font-size: 12px; margin-top: 6px; }
+        .upi-hint span { color: #00d4ff; }
+
+        /* Pay Button */
+        .pay-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #0065ff, #00d4ff);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            box-shadow: 0 6px 20px rgba(0,100,255,0.4);
+            letter-spacing: 0.5px;
+        }
+        .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,100,255,0.5); }
+        .pay-btn:active { transform: translateY(0); }
+
+        .secure-note {
+            text-align: center;
+            color: #4a6a7a;
+            font-size: 12px;
+            margin-top: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        /* ── SUCCESS SCREEN ─────────────────────────────────── */
+        #success-screen {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .checkmark-circle {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c853, #00e676);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 0 0 0 rgba(0,200,83,0.4);
+            animation: pulsate 1.5s ease-out 0.4s forwards;
+        }
+        @keyframes pulsate {
+            0%   { box-shadow: 0 0 0 0 rgba(0,200,83,0.5); }
+            70%  { box-shadow: 0 0 0 24px rgba(0,200,83,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
+        }
+        .checkmark-circle svg { width: 44px; height: 44px; }
+        #success-screen h2 { color: #fff; font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+        #success-screen .sub { color: #94b8cc; font-size: 14px; line-height: 1.6; margin-bottom: 28px; }
+        #success-screen .receipt-box {
+            background: rgba(0,200,83,0.08);
+            border: 1px solid rgba(0,200,83,0.2);
+            border-radius: 14px;
+            padding: 16px 20px;
+            text-align: left;
+            margin-bottom: 28px;
+        }
+        .receipt-box .r-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .receipt-box .r-row:last-child { margin-bottom: 0; }
+        .receipt-box .r-label { color: #7abf94; font-size: 13px; }
+        .receipt-box .r-val { color: #e0f0f8; font-size: 13px; font-weight: 600; }
+
+        .dash-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #0065ff, #00d4ff);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            padding: 13px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 6px 20px rgba(0,100,255,0.35);
+        }
+        .dash-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,100,255,0.5); }
+
+        /* Loading spinner on button */
+        .spinner {
+            display: none;
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="payment-card" id="payment-card">
+    <!-- Logo -->
+    <div class="logo-bar">
+        <div class="pulse">💊</div>
+        <span>HealthCare AI</span>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+        <h3>Booking Summary</h3>
+        <div class="order-row">
+            <span>Doctor</span>
+            <span class="val">Dr. {{ doctor_name }}</span>
+        </div>
+        <div class="order-row">
+            <span>Date</span>
+            <span class="val">{{ appt_date }}</span>
+        </div>
+        <div class="order-row">
+            <span>Time</span>
+            <span class="val">{{ appt_time }}</span>
+        </div>
+        <div class="order-row">
+            <span>Hospital</span>
+            <span class="val">{{ hospital_name }}</span>
+        </div>
+        <hr class="order-divider">
+        <div class="total-row">
+            <span class="label">Booking Fee</span>
+            <span class="amount">₹200</span>
+        </div>
+    </div>
+
+    <!-- Tab Toggle -->
+    <div class="tab-toggle">
+        <button class="tab-btn active" onclick="switchTab('card')" id="tab-card">
+            💳 Card
+        </button>
+        <button class="tab-btn" onclick="switchTab('upi')" id="tab-upi">
+            📱 UPI
+        </button>
+    </div>
+
+    <!-- Card Form -->
+    <div class="pay-form active" id="form-card">
+        <div class="form-group">
+            <label>Cardholder Name</label>
+            <input type="text" id="card-name" placeholder="Name on card" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
+        </div>
+        <div class="card-row">
+            <div class="form-group">
+                <label>Expiry</label>
+                <input type="text" id="card-expiry" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)">
+            </div>
+            <div class="form-group">
+                <label>CVV</label>
+                <input type="text" id="card-cvv" placeholder="•••" maxlength="3">
+            </div>
+        </div>
+        <button class="pay-btn" onclick="processPayment('card')">
+            <span id="card-btn-text">Pay ₹200 Securely</span>
+            <div class="spinner" id="card-spinner"></div>
+        </button>
+    </div>
+
+    <!-- UPI Form -->
+    <div class="pay-form" id="form-upi">
+        <div class="form-group">
+            <label>UPI ID</label>
+            <input type="text" id="upi-id" placeholder="example@upi" autocomplete="off">
+            <p class="upi-hint">e.g., <span>mobilenumber@paytm</span>, <span>name@gpay</span></p>
+        </div>
+        <button class="pay-btn" onclick="processPayment('upi')">
+            <span id="upi-btn-text">Pay ₹200 via UPI</span>
+            <div class="spinner" id="upi-spinner"></div>
+        </button>
+    </div>
+
+    <p class="secure-note">🔒 256-bit SSL encrypted · Secure Checkout</p>
+</div>
+
+<!-- Success Screen (hidden initially) -->
+<div class="payment-card" id="success-screen">
+    <div class="checkmark-circle">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="26" cy="26" r="25" stroke="white" stroke-width="2"/>
+            <path d="M14 26L22 34L38 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <h2>Payment Successful!</h2>
+    <p class="sub">Your booking fee of <strong style="color:#00c853;">&#8377;200</strong> has been received.<br>Your appointment is now <strong style="color:#00c853;">CONFIRMED</strong>.</p>
+    <div class="receipt-box">
+        <div class="r-row">
+            <span class="r-label">Transaction ID</span>
+            <span class="r-val" id="txn-id" style="font-family:monospace;">—</span>
+        </div>
+        <div class="r-row">
+            <span class="r-label">Amount Paid</span>
+            <span class="r-val">&#8377;200.00</span>
+        </div>
+        <div class="r-row">
+            <span class="r-label">Payment Method</span>
+            <span class="r-val" id="receipt-method">—</span>
+        </div>
+        <div class="r-row">
+            <span class="r-label">Paid At</span>
+            <span class="r-val" id="paid-at">—</span>
+        </div>
+        <div class="r-row">
+            <span class="r-label">Status</span>
+            <span class="r-val" style="color:#00c853;">✔ Confirmed</span>
+        </div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+        <a href="{{ url_for('patient_dashboard') }}" class="dash-btn" style="background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);">Dashboard</a>
+        <a id="receipt-link" href="{{ url_for('payment_receipt', app_id=app_id) }}" class="dash-btn">&#x1F4BE; Download Receipt</a>
+    </div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        document.querySelectorAll('.pay-form').forEach(f => f.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('form-' + tab).classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    function formatCard(el) {
+        let val = el.value.replace(/\D/g, '').substring(0, 16);
+        el.value = val.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function formatExpiry(el) {
+        let val = el.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 3) val = val.substring(0, 2) + ' / ' + val.substring(2);
+        el.value = val;
+    }
+
+    function generateTxnId() {
+        return 'HC' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
+    }
+
+    function processPayment(method) {
+        // Basic validation
+        if (method === 'card') {
+            const name = document.getElementById('card-name').value.trim();
+            const num  = document.getElementById('card-number').value.replace(/\s/g, '');
+            const exp  = document.getElementById('card-expiry').value.trim();
+            const cvv  = document.getElementById('card-cvv').value.trim();
+            if (!name || num.length < 16 || !exp || cvv.length < 3) {
+                alert('Please fill in all card details correctly.');
+                return;
+            }
+        } else {
+            const upi = document.getElementById('upi-id').value.trim();
+            if (!upi || !upi.includes('@')) {
+                alert('Please enter a valid UPI ID (e.g. name@gpay).');
+                return;
+            }
+        }
+
+        // Show spinner
+        const btnText    = document.getElementById(method + '-btn-text');
+        const spinner    = document.getElementById(method + '-spinner');
+        btnText.textContent = 'Processing…';
+        spinner.style.display = 'block';
+
+        // Simulate 2s processing delay then show success
+        setTimeout(() => {
+            fetch("{{ url_for('mark_payment', app_id=app_id) }}", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({method: method.toUpperCase()})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('txn-id').textContent = data.transaction_id || '—';
+                    document.getElementById('paid-at').textContent = data.paid_at || '—';
+                } else {
+                    document.getElementById('txn-id').textContent = 'Error: ' + (data.error || 'Unknown');
+                }
+            });
+
+            document.getElementById('receipt-method').textContent =
+                method === 'card' ? 'Debit / Credit Card' : 'UPI';
+
+            document.getElementById('payment-card').style.display = 'none';
+            const success = document.getElementById('success-screen');
+            success.style.display = 'block';
+            success.style.animation = 'slideUp 0.5s ease';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

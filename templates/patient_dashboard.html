@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.6); }
+            50%       { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+        }
+        @keyframes redGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(239,68,68,0.3), 0 0 30px rgba(239,68,68,0.1); }
+            50%       { box-shadow: 0 0 30px rgba(239,68,68,0.6), 0 0 60px rgba(239,68,68,0.2); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        @keyframes tickFlash {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body style="padding: 30px; overflow-x: hidden;">
+    <div id="blob1" class="dynamic-blob"></div>
+    <div id="blob2" class="dynamic-blob"></div>
+
+    <div class="emergency-strip reveal active" style="margin-bottom: 30px; border-radius: 15px; animation: slideUp 0.8s ease-out;">
+        <i class="fas fa-exclamation-triangle"></i> MEDICAL EMERGENCY IN KERALA: CALL 108 OR 112
+    </div>
+
+    {% set payment_pending = appointments | selectattr('status', 'equalto', 'PAYMENT_PENDING') | list %}
+    {% if payment_pending %}
+    <div id="payBanner" style="
+        background: linear-gradient(135deg, rgba(239,68,68,0.18), rgba(185,28,28,0.22));
+        border: 2px solid rgba(239,68,68,0.7);
+        border-radius: 18px;
+        padding: 20px 28px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        animation: slideUp 0.4s ease-out, redGlow 1.2s ease-in-out infinite;
+    ">
+        <div style="
+            background: rgba(239,68,68,0.2);
+            border: 2px solid rgba(239,68,68,0.6);
+            border-radius: 50%;
+            width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            animation: spin 8s linear infinite;
+        ">
+            <i class="fas fa-clock" style="color: #ef4444; font-size: 1.8rem;"></i>
+        </div>
+
+        <div style="flex: 1;">
+            <div style="color: #ef4444; font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px;">
+                🚨 Payment Window Closing!
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.82rem;">
+                {{ payment_pending | length }} appointment(s) require payment. Pay now to confirm your slot.
+            </div>
+        </div>
+
+        <div style="text-align: center; flex-shrink: 0;">
+            <div id="countdown" style="
+                font-family: 'Courier New', monospace;
+                font-size: 2.6rem;
+                font-weight: 900;
+                color: #ef4444;
+                letter-spacing: 4px;
+                text-shadow: 0 0 20px rgba(239,68,68,0.8), 0 0 40px rgba(239,68,68,0.4);
+                line-height: 1;
+            ">01:00</div>
+            <div style="font-size: 0.7rem; color: rgba(239,68,68,0.7); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase;">Time Remaining</div>
+        </div>
+    </div>
+    <script>
+        (function() {
+            var key = 'payDeadline_{{ session["user_id"] }}';
+            var deadline = parseInt(sessionStorage.getItem(key) || '0');
+            if (!deadline || Date.now() > deadline) {
+                deadline = Date.now() + 1 * 60 * 1000;
+                sessionStorage.setItem(key, deadline);
+            }
+            function tick() {
+                var rem = Math.max(0, deadline - Date.now());
+                var m = String(Math.floor(rem / 60000)).padStart(2,'0');
+                var s = String(Math.floor((rem % 60000) / 1000)).padStart(2,'0');
+                var el = document.getElementById('countdown');
+                if (!el) return;
+                el.textContent = m + ':' + s;
+                el.style.animation = 'none';
+                void el.offsetWidth;
+                el.style.animation = 'tickFlash 0.5s ease';
+                if (rem < 60000) {
+                    el.style.color = '#b91c1c';
+                    el.style.textShadow = '0 0 25px rgba(185,28,28,1), 0 0 50px rgba(185,28,28,0.6)';
+                    document.getElementById('payBanner').style.borderColor = 'rgba(185,28,28,0.95)';
+                }
+                if (rem > 0) setTimeout(tick, 1000);
+                else {
+                    el.textContent = 'EXPIRED';
+                    el.style.fontSize = '1.8rem';
+                    el.style.letterSpacing = '2px';
+                }
+            }
+            tick();
+        })();
+    </script>
+    {% endif %}
+
+    <div class="dashboard-header-premium reveal active" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 0 10px; animation: slideUp 1s ease-out;">
+        <div>
+            <h1 style="font-family: 'Outfit'; font-size: 2.8rem; font-weight: 800; letter-spacing: -1px;">Welcome, <span style="background: linear-gradient(to right, var(--accent-blue), var(--accent-emerald)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">{{ username }}</span></h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Your secure clinical intelligence portal</p>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <a href="{{ url_for('chat_ui') }}" class="btn-premium" style="width: auto; background: var(--glass); border: 1px solid var(--glass-border); color: white; padding: 12px 25px; border-radius: 15px;"><i class="fas fa-atom"></i> Assistant</a>
+            <a href="{{ url_for('logout') }}" class="btn-premium" style="width: auto; background: rgba(244, 63, 94, 0.1); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.2); padding: 12px 25px; border-radius: 15px;"><i class="fas fa-power-off"></i></a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid reveal active" style="animation: slideUp 1.2s ease-out;">
+        <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+            <i class="fas fa-calendar-check" style="color: var(--accent-blue); filter: drop-shadow(0 0 10px var(--accent-blue));"></i>
+            <div class="stat-label">Total Appointments</div>
+            <div class="stat-value">{{ appointments|length }}</div>
+        </div>
+        <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+            <i class="fas fa-dna" style="color: var(--accent-emerald); filter: drop-shadow(0 0 10px var(--accent-emerald)); position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.05;"></i>
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-value" style="color: var(--accent-amber); filter: drop-shadow(0 0 10px var(--accent-amber));">{{ appointments|selectattr('status', 'equalto', 'PENDING')|list|length }}</div>
+        </div>
+        <div class="stat-card glass-card" style="border: 1.5px solid var(--glass-border);">
+            <i class="fas fa-user-shield" style="color: var(--accent-purple); filter: drop-shadow(0 0 10px var(--accent-purple));"></i>
+            <div class="stat-label">Confirmed</div>
+            <div class="stat-value" style="font-size: 1.8rem; color: var(--accent-emerald);">{{ appointments|selectattr('status', 'equalto', 'CONFIRMED')|list|length }}</div>
+        </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
+            <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-clipboard-list" style="color: var(--accent-blue); margin-right: 10px;"></i> My Appointments</h2>
+            <a href="{{ url_for('list_hospitals') }}" class="btn-premium" style="width: auto; padding: 10px 20px; font-size: 0.85rem;">Book Clinical Visit</a>
+        </div>
+
+        {% if appointments %}
+        <div style="overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Consultant</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-hospital-alt" style="color: var(--accent-purple);"></i>
+                                <span>{{ app.hospital_name }}</span>
+                            </div>
+                        </td>
+                        <td><strong>{{ app.doctor_name or 'N/A' }}</strong></td>
+                        <td>
+                            <div style="font-size: 0.9rem;">{{ app.date }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);"><i class="far fa-clock"></i> {{ app.time }}</div>
+                        </td>
+                        <td>
+                            {% if app.status == 'PENDING' %}
+                                <span class="status-badge" style="background: rgba(234,179,8,0.15); color: #f59e0b; border: 1px solid rgba(234,179,8,0.3);">
+                                    <i class="fas fa-hourglass-half"></i> Awaiting Hospital
+                                </span>
+                            {% elif app.status == 'PAYMENT_PENDING' %}
+                                <span class="status-badge" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.4); animation: pulse-blue 1.5s infinite;">
+                                    <i class="fas fa-credit-card"></i> Pay Now
+                                </span>
+                            {% elif app.status == 'CONFIRMED' %}
+                                <span class="status-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">
+                                    <i class="fas fa-check-double"></i> Confirmed
+                                </span>
+                            {% elif app.status == 'COMPLETED' %}
+                                <span class="status-badge" style="background: rgba(139,92,246,0.15); color: #8b5cf6; border: 1px solid rgba(139,92,246,0.3);">
+                                    <i class="fas fa-flag-checkered"></i> Completed
+                                </span>
+                            {% elif app.status == 'CANCELLED' %}
+                                <span class="status-badge" style="background: rgba(156,163,175,0.15); color: #9ca3af; border: 1px solid rgba(156,163,175,0.3);">
+                                    <i class="fas fa-ban"></i> Cancelled
+                                </span>
+                            {% elif app.status == 'REJECTED' or app.status == 'REJECTED_BY_HOSPITAL' %}
+                                <span class="status-badge" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);">
+                                    <i class="fas fa-times-circle"></i> Rejected
+                                </span>
+                            {% else %}
+                                <span class="status-badge">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.status == 'PAYMENT_PENDING' %}
+                                <a href="{{ url_for('payment_page', app_id=app.id) }}" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;font-weight:700;font-size:0.85rem;padding:8px 16px;border-radius:10px;text-decoration:none;box-shadow:0 4px 12px rgba(59,130,246,0.4);transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                                    <i class="fas fa-rupee-sign"></i> Pay &#8377;200 Now
+                                </a>
+                            {% elif app.payment_status == 'PAID' %}
+                                <div>
+                                    <span class="status-badge" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);font-size:0.8rem;">
+                                        <i class="fas fa-check-circle"></i> &#8377;200 Paid
+                                    </span>
+                                    <div style="margin-top:5px;">
+                                        <a href="{{ url_for('payment_receipt', app_id=app.id) }}" style="font-size:0.75rem;color:var(--accent-blue);text-decoration:none;">
+                                            <i class="fas fa-file-download"></i> Download Receipt
+                                        </a>
+                                    </div>
+                                </div>
+                            {% elif app.payment_status == 'CANCELLED' or app.status == 'REJECTED' or app.status == 'CANCELLED' %}
+                                <span class="status-badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:0.8rem;text-decoration:line-through;">
+                                    <i class="fas fa-times-circle"></i> &#8377;200 Cancelled
+                                </span>
+                            {% else %}
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.status == 'COMPLETED' %}
+                                <a href="{{ url_for('submit_feedback', app_id=app.id) }}" class="status-badge" style="background: var(--accent-blue); color: white; text-decoration: none;"><i class="fas fa-star"></i> Rate Experience</a>
+                            {% elif app.status == 'PENDING' or app.status == 'PAYMENT_PENDING' %}
+                                <form action="{{ url_for('cancel_appointment_patient', app_id=app.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this appointment?');" style="display:inline;">
+                                    <button type="submit" class="status-badge" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);cursor:pointer;"><i class="fas fa-times"></i> Cancel</button>
+                                </form>
+                            {% else %}
+                                <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px; color: var(--text-muted);">
+            <i class="fas fa-calendar-times" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+            <p>No medical visits scheduled yet.</p>
+            <a href="{{ url_for('list_hospitals') }}" class="btn-premium" style="width: auto; margin-top: 20px;">Find a Provider</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

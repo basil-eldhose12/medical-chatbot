@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Staff | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="padding: 30px;">
+    <div class="emergency-strip" style="margin-bottom: 30px; border-radius: 15px;">
+        <i class="fas fa-exclamation-triangle"></i> MEDICAL EMERGENCY IN KERALA: CALL 108 OR 112
+    </div>
+
+    <div class="dashboard-header-premium" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 0 10px;">
+        <div>
+            <h1 style="font-family: 'Outfit'; font-size: 2.2rem;">Staff Management</h1>
+            <p style="color: var(--text-muted);">Registered consultants at your institution</p>
+        </div>
+        <div style="display: flex; gap: 15px;">
+             <a href="{{ url_for('hospital_dashboard') }}" class="btn-premium" style="width: auto; background: rgba(0, 212, 255, 0.1); color: var(--accent-blue); border: 1px solid rgba(0, 212, 255, 0.2);"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+        <!-- Add Doctor Form -->
+        <div class="glass-card">
+            <h3 style="font-family: 'Outfit'; margin-bottom: 25px;"><i class="fas fa-user-plus" style="color: var(--accent-blue); margin-right: 15px;"></i> Register Consultant</h3>
+            <form action="{{ url_for('manage_staff') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Doctor Full Name</label>
+                    <input type="text" name="name" placeholder="e.g. Dr. John Smith" required>
+                </div>
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <select name="specialization" required>
+                        <option value="General Physician">General Physician</option>
+                        <option value="Cardiologist">Cardiologist</option>
+                        <option value="Neurologist">Neurologist</option>
+                        <option value="Gastroenterologist">Gastroenterologist</option>
+                        <option value="Dermatologist">Dermatologist</option>
+                        <option value="Pulmonologist">Pulmonologist</option>
+                        <option value="Pediatrician">Pediatrician</option>
+                        <option value="Psychiatrist">Psychiatrist</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Shift Starts</label>
+                        <input type="time" name="shift_start" value="09:00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shift Ends</label>
+                        <input type="time" name="shift_end" value="17:00" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Profile Photo</label>
+                    <input type="file" name="doctor_image" accept="image/*" style="padding: 10px;">
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
+                        OR Image URL: <input type="url" name="image_url" placeholder="https://..." style="padding: 8px; margin-top: 5px;">
+                    </div>
+                </div>
+                <button type="submit" class="btn-premium" style="margin-top: 10px;">Register to Institution</button>
+            </form>
+        </div>
+
+        <!-- Staff List -->
+        <div class="glass-card">
+            <h3 style="font-family: 'Outfit'; margin-bottom: 25px;"><i class="fas fa-users-cog" style="color: var(--accent-emerald); margin-right: 15px;"></i> Active Medical Staff</h3>
+            {% if doctors %}
+            <div style="overflow-x: auto;">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Consultant</th>
+                            <th>Specialization</th>
+                            <th>Shift Timing</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in doctors %}
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    {% if doc.image_url %}
+                                        <img src="{{ doc.image_url }}" alt="Profile" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover; border: 1px solid var(--glass-border);">
+                                    {% else %}
+                                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-blue);">
+                                            <i class="fas fa-user-md"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span style="font-weight: 600;">{{ doc.name }}</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald);">{{ doc.specialization }}</span></td>
+                            <td><span style="font-size: 0.85rem; color: var(--text-muted);"><i class="far fa-clock"></i> {{ doc.shift_start }} - {{ doc.shift_end }}</span></td>
+                            <td>
+                                <form action="{{ url_for('delete_doctor', doc_id=doc.id) }}" method="POST" onsubmit="return confirm('Remove this consultant from your institution?');">
+                                    <button type="submit" style="background: none; border: none; color: var(--accent-rose); cursor: pointer; font-size: 1.1rem;"><i class="fas fa-trash-alt"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 60px; color: var(--text-muted);">
+                <i class="fas fa-user-md" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                <p>No consultants registered yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

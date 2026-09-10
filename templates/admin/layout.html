@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--glass-border);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .admin-content {
+            margin-left: 280px;
+            padding: 40px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--glass);
+            color: white;
+            border: 1px solid var(--glass-border);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .admin-header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="blob1" class="dynamic-blob"></div>
+    <div id="blob2" class="dynamic-blob"></div>
+    <div class="admin-sidebar" style="animation: slideUp 0.8s ease-out;">
+        <div style="margin-bottom: 40px; padding: 0 10px;">
+            <h2 style="font-family: 'Outfit'; font-weight: 700; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-user-shield" style="color: var(--accent-blue);"></i> ADMIN <span style="font-size: 0.6rem; opacity: 0.5;">v3.1</span>
+            </h2>
+        </div>
+
+        <nav style="flex: 1;">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item {{ 'active' if 'dashboard' in request.path }}"><i class="fas fa-chart-pie"></i> Overview</a>
+            <a href="{{ url_for('admin_users') }}" class="nav-item {{ 'active' if 'users' in request.path }}"><i class="fas fa-users-cog"></i> User Management</a>
+            <a href="{{ url_for('admin_appointments') }}" class="nav-item {{ 'active' if 'appointments' in request.path }}"><i class="fas fa-calendar-check"></i> Consultations</a>
+            <a href="{{ url_for('admin_feedback_view') }}" class="nav-item {{ 'active' if 'feedback' in request.path }}"><i class="fas fa-star-half-alt"></i> Clinical Feedback</a>
+            <div style="height: 1px; background: var(--glass-border); margin: 20px 0;"></div>
+            <a href="{{ url_for('admin_cases') }}" class="nav-item"><i class="fas fa-book-medical"></i> Medical Cases</a>
+            <a href="{{ url_for('admin_logs') }}" class="nav-item"><i class="fas fa-history"></i> System Logs</a>
+        </nav>
+
+        <a href="{{ url_for('logout') }}" class="nav-item" style="color: var(--accent-rose);"><i class="fas fa-power-off"></i> Sign Out</a>
+    </div>
+
+    <main class="admin-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="status-badge status-{{ category }}" style="margin-bottom: 25px; display: block; text-align: center; padding: 15px;">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Clinical Case Repository{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.2rem; font-weight: 700;">Knowledge Base</h1>
+        <p style="color: var(--text-muted);">Managing clinical conditions and triage logic</p>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-book-medical" style="color: var(--accent-blue); margin-right: 15px;"></i> Condition Library</h2>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Total: {{ cases|length }} conditions</div>
+    </div>
+
+    {% if cases %}
+    <div style="overflow-x: auto;">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Domain</th>
+                    <th>Specialist Recommended</th>
+                    <th>Default Severity</th>
+                    <th>ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in cases %}
+                <tr>
+                    <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: white;">{{ case.domain }}</span></td>
+                    <td><strong>{{ case.specialist }}</strong></td>
+                    <td>
+                        <span class="status-badge status-{{ 'rejected' if case.severity == 'Emergency' else 'amber' if case.severity == 'Serious' else 'approved' }}">
+                            {{ case.severity }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-muted);">#{{ case.id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted); padding: 50px;">Case library is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt | HealthCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --bg: #0a0f1e;
+            --card: #111827;
+            --border: rgba(255,255,255,0.08);
+            --green: #10b981;
+            --blue: #3b82f6;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .receipt-wrapper {
+            max-width: 560px;
+            width: 100%;
+        }
+
+        .receipt-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .receipt-header {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            padding: 32px;
+            text-align: center;
+        }
+
+        .receipt-header .icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.8rem;
+        }
+
+        .receipt-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .receipt-header p {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .receipt-body {
+            padding: 28px 32px;
+        }
+
+        .receipt-amount {
+            text-align: center;
+            margin-bottom: 28px;
+            padding: 20px;
+            background: rgba(16,185,129,0.08);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 16px;
+        }
+
+        .receipt-amount .label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .receipt-amount .amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--green);
+            line-height: 1.1;
+            margin: 6px 0;
+        }
+
+        .receipt-amount .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16,185,129,0.15);
+            color: var(--green);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px dashed var(--border);
+            margin: 20px 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .row .key {
+            color: var(--muted);
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .row .val {
+            color: var(--text);
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .txn-box {
+            background: rgba(59,130,246,0.08);
+            border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        .txn-box .txn-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .txn-box .txn-id {
+            font-family: monospace;
+            font-size: 1rem;
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-print {
+            flex: 1;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+        }
+
+        .btn-back {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .footer-note {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.75rem;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white; color: #111; padding: 0; }
+            .receipt-card { box-shadow: none; border: 1px solid #ddd; }
+            .receipt-header { background: #10b981 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .actions { display: none; }
+            .footer-note { color: #666; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-wrapper">
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <div class="icon"><i class="fas fa-receipt"></i></div>
+                <h1>Payment Receipt</h1>
+                <p>HealthCare AI — Official Booking Confirmation</p>
+            </div>
+
+            <div class="receipt-body">
+                <div class="receipt-amount">
+                    <div class="label">Amount Paid</div>
+                    <div class="amount">&#8377;{{ appt.paid_amount or 200 }}</div>
+                    <div class="status"><i class="fas fa-check-circle"></i> PAYMENT SUCCESSFUL</div>
+                </div>
+
+                <div class="row">
+                    <span class="key"><i class="fas fa-user"></i> Patient</span>
+                    <span class="val">{{ appt.patient_name }}</span>
+                </div>
+                <div class="row">
+                    <span class="key"><i class="fas fa-hospital"></i> Hospital</span>
+                    <span class="val">{{ appt.hospital_name }}</span>
+                </div>
+                <div class="row">
+                    <span class="key"><i class="fas fa-user-md"></i> Doctor</span>
+                    <span class="val">{{ appt.doctor_name or 'N/A' }}</span>
+                </div>
+                <div class="row">
+                    <span class="key"><i class="fas fa-calendar-alt"></i> Appointment</span>
+                    <span class="val">{{ appt.date }} at {{ appt.time }}</span>
+                </div>
+                <div class="row">
+                    <span class="key"><i class="fas fa-credit-card"></i> Method</span>
+                    <span class="val">{{ appt.method or 'CARD' }}</span>
+                </div>
+                <div class="row">
+                    <span class="key"><i class="fas fa-clock"></i> Paid At</span>
+                    <span class="val">{{ appt.paid_at or 'N/A' }}</span>
+                </div>
+
+                <hr class="divider">
+
+                <div class="txn-box">
+                    <div class="txn-label"><i class="fas fa-fingerprint"></i> &nbsp;Transaction ID</div>
+                    <div class="txn-id">{{ appt.transaction_id or appt.payment_id }}</div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-print" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print / Save PDF
+                    </button>
+                    <a href="{{ url_for('patient_dashboard') }}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            This is a computer-generated receipt. No signature required.<br>
+            Keep this for your records. Appointment ID: #{{ appt.id }}
+        </div>
+    </div>
+</body>
+</html>

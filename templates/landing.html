@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCare AI | The Future of Clinical Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        :root {
+            --primary-glow: conic-gradient(from 180deg at 50% 50%, #16abff33 0deg, #0885ff33 55deg, #54d6ff33 120deg, #0071ff33 160deg, transparent 360deg);
+        }
+
+        .hero-visual {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 2000px;
+        }
+
+        .hero-image-main {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8), 0 0 30px rgba(0, 242, 255, 0.2);
+            transform: perspective(1000px) rotateY(-12deg) rotateX(5deg);
+            animation: float 8s ease-in-out infinite;
+            border: 1px solid var(--glass-border);
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: var(--primary-glow);
+            filter: blur(120px);
+            opacity: 0.6;
+            z-index: -1;
+            animation: rotate-3d 20s linear infinite;
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            line-height: 1.15;
+            margin-bottom: 25px;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin-bottom: 45px;
+            opacity: 0.85;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .features-grid {
+            perspective: 1000px;
+        }
+
+        .feature-card {
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateZ(20px) rotateX(10deg) rotateY(10deg);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(800px circle at var(--x) var(--y), rgba(255,255,255,0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .dynamic-blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: var(--accent-purple);
+            filter: blur(150px);
+            opacity: 0.1;
+            border-radius: 50%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        #blob1 { top: -100px; left: -100px; animation: float 10s infinite alternate; }
+        #blob2 { bottom: -100px; right: -100px; animation: float 12s infinite alternate-reverse; }
+
+        .nav-premium {
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .reveal-3d {
+            opacity: 0;
+            transform: perspective(1000px) rotateX(-20deg) translateY(50px);
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .reveal-3d.active {
+            opacity: 1;
+            transform: perspective(1000px) rotateX(0) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div id="blob1" class="dynamic-blob"></div>
+    <div id="blob2" class="dynamic-blob"></div>
+
+    <div class="emergency-strip">
+        <i class="fas fa-exclamation-triangle"></i> Kerala Medical Emergency: Call 108 or 112 immediately.
+    </div>
+
+    <nav class="nav-premium" style="padding: 20px 50px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-family: 'Outfit'; font-weight: 800; font-size: 1.8rem; display: flex; align-items: center; gap: 15px; letter-spacing: -1px;">
+            <i class="fas fa-stethoscope" style="color: var(--accent-blue); filter: drop-shadow(0 0 10px var(--accent-blue));"></i> HealthCare AI
+        </div>
+        <div style="display: flex; gap: 40px; align-items: center;">
+            <a href="/login" style="color: white; text-decoration: none; font-weight: 500; font-size: 1rem; opacity: 0.8; transition: opacity 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">Sign In</a>
+            <a href="/register/hospital" class="btn-premium" style="width: auto; padding: 12px 30px; border-radius: 12px; font-weight: 600; background: linear-gradient(45deg, var(--accent-blue), #0071ff); box-shadow: 0 10px 30px -5px rgba(0, 113, 255, 0.4);">Join Network</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero-section" style="padding: 100px 50px; display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; gap: 50px; min-height: 80vh;">
+            <div style="flex: 1; max-width: 650px; z-index: 10;">
+                <h1 class="hero-title reveal active" style="font-family: 'Outfit', sans-serif; font-weight: 700;">
+                    Clinical Intelligence <br> <span style="background: linear-gradient(to right, var(--accent-blue), var(--accent-emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Redefined.</span>
+                </h1>
+                
+                <p class="hero-subtitle reveal active" style="font-family: 'Inter', sans-serif;">
+                    Empowering healthcare with hyper-accurate AI triage and seamless specialist integration. 
+                    The most advanced clinical companion ever built.
+                </p>
+
+                <div class="cta-container reveal active" style="display: flex; align-items: center; gap: 20px;">
+                    <a href="/register/patient" class="btn-premium" style="width: auto; padding: 18px 40px; font-size: 1.1rem; border-radius: 12px; background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple)); box-shadow: 0 15px 30px -10px rgba(112, 0, 255, 0.4); text-decoration: none; color: white; display: flex; align-items: center;">
+                        Start Assessment <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                    </a>
+                    <a href="/assistant" style="color: var(--text-primary); text-decoration: none; font-weight: 500; font-size: 1.1rem; padding: 18px 30px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); transition: all 0.3s; display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'">
+                        <i class="fas fa-play-circle" style="color: var(--accent-blue);"></i> View Demo
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-visual reveal active" style="flex: 1; min-width: 500px;">
+                <div class="hero-glow"></div>
+                <img src="{{ url_for('static', filename='images/hero.png') }}" alt="AI Healthcare Hero" class="hero-image-main">
+            </div>
+        </section>
+
+        <section class="features-grid reveal-3d" style="padding: 100px 50px; background: rgba(255,255,255,0.01);">
+            <div style="text-align: center; margin-bottom: 80px;">
+                <span style="color: var(--accent-blue); text-transform: uppercase; letter-spacing: 4px; font-weight: 800; font-size: 0.8rem;">Core Capabilities</span>
+                <h2 style="font-family: 'Outfit'; font-size: 3rem; margin-top: 10px;">Built for the next decade.</h2>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; max-width: 1400px; margin: 0 auto;">
+                <div class="feature-card glass-card">
+                    <img src="{{ url_for('static', filename='images/diagnostic.png') }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 25px; border: 1px solid var(--glass-border);">
+                    <h3 style="font-family: 'Outfit'; font-size: 1.5rem; margin-bottom: 15px;">AI Neural Triage</h3>
+                    <p style="color: var(--text-muted); line-height: 1.7; font-size: 1rem;">Powered by Gemini 1.5 Flash, our triage engine provides professional-grade symptom analysis and instantaneous specialist routing.</p>
+                </div>
+
+                <div class="feature-card glass-card">
+                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, var(--accent-purple), #000); border-radius: 15px; display: flex; justify-content: center; align-items: center; margin-bottom: 25px;">
+                        <i class="fas fa-bolt" style="color: white; font-size: 4rem; filter: drop-shadow(0 0 20px var(--accent-purple));"></i>
+                    </div>
+                    <h3 style="font-family: 'Outfit'; font-size: 1.5rem; margin-bottom: 15px;">Hyper-Speed Booking</h3>
+                    <p style="color: var(--text-muted); line-height: 1.7; font-size: 1rem;">Direct-to-hospital scheduling with real-time slot synchronization. Book your consultation in under 15 seconds.</p>
+                </div>
+
+                <div class="feature-card glass-card">
+                    <img src="{{ url_for('static', filename='images/secure.png') }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 25px; border: 1px solid var(--glass-border);">
+                    <h3 style="font-family: 'Outfit'; font-size: 1.5rem; margin-bottom: 15px;">Biometric Security</h3>
+                    <p style="color: var(--text-muted); line-height: 1.7; font-size: 1rem;">Enterprise-grade patient data encryption and secure provider verification ensure your medical history remains private.</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding: 150px 20px; text-align: center;">
+            <div class="glass-card reveal" style="max-width: 1000px; margin: 0 auto; padding: 80px 40px; border: 2px solid var(--glass-border); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(112, 0, 255, 0.05) 0%, transparent 70%);"></div>
+                <h2 style="font-family: 'Outfit'; font-size: 3.5rem; margin-bottom: 20px; position: relative; z-index: 1;">Join the Healthcare Revolution.</h2>
+                <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 40px; position: relative; z-index: 1;">Trusted by over 50 leading hospitals and 100k+ patients across the region.</p>
+                <div style="display: flex; gap: 20px; justify-content: center; position: relative; z-index: 1;">
+                    <a href="/register/patient" class="btn-premium" style="width: auto; padding: 18px 50px; border-radius: 15px;">Patient Portal</a>
+                    <a href="/register/hospital" class="btn-secondary" style="padding: 18px 50px; border-radius: 15px; background: rgba(255,255,255,0.03);">Hospital Partner</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="padding: 80px 50px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.9rem;">
+        <div>&copy; 2026 HealthCare AI. Premium Medical Solutions.</div>
+        <div style="display: flex; gap: 30px;">
+            <a href="#" style="color: inherit; text-decoration: none;">Privacy</a>
+            <a href="#" style="color: inherit; text-decoration: none;">Terms</a>
+            <a href="#" style="color: inherit; text-decoration: none;">Security</a>
+        </div>
+    </footer>
+
+    <script>
+        // Reveal Animations on Scroll
+        const reveals = document.querySelectorAll('.reveal, .reveal-3d');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        reveals.forEach(reveal => observer.observe(reveal));
+
+        // Spotlight Effect for Cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.onmousemove = e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--x', `${x}px`);
+                card.style.setProperty('--y', `${y}px`);
+            };
+        });
+    </script>
+</body>
+</html>

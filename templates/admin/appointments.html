@@ -1,0 +1,79 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Clinical Consultations{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.2rem; font-weight: 700;">Clinical Schedule</h1>
+        <p style="color: var(--text-muted);">Manage institution and patient appointments</p>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-calendar-check" style="color: var(--accent-blue); margin-right: 15px;"></i> All Scheduled Visits</h2>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Syncing with external nodes...</div>
+    </div>
+
+    {% if appointments %}
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Patient Profile</th>
+                <th>Provider Institution</th>
+                <th>Clinical Professional</th>
+                <th>Visit Details</th>
+                <th>Status</th>
+                <th>Payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in appointments %}
+            <tr>
+                <td><strong>{{ app.patient_name }}</strong></td>
+                <td><span style="color: var(--accent-purple);"><i class="fas fa-hospital"></i> {{ app.hospital_name }}</span></td>
+                <td><strong>{{ app.doctor_name or 'N/A' }}</strong></td>
+                <td>
+                    <div style="font-size: 0.85rem;">{{ app.date }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ app.time }}</div>
+                </td>
+                <td>
+                    <span class="status-badge status-{{ app.status.lower() }}">
+                        {{ app.status }}
+                    </span>
+                </td>
+                <td>
+                    {% if app.payment_status == 'PAID' %}
+                        <div style="font-weight: 700; font-size: 1.1rem; color: #10b981;">₹200</div>
+                        <div style="margin-top: 4px;">
+                            <span class="status-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); font-size: 0.72rem;">
+                                <i class="fas fa-check-circle"></i> RECEIVED
+                            </span>
+                        </div>
+                    {% elif app.payment_status == 'CANCELLED' %}
+                        <div style="font-weight: 700; font-size: 1.1rem; color: #ef4444; opacity: 0.5; text-decoration: line-through;">₹200</div>
+                        <div style="margin-top: 4px;">
+                            <span class="status-badge" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); font-size: 0.72rem;">
+                                <i class="fas fa-times-circle"></i> CANCELLED
+                            </span>
+                        </div>
+                    {% else %}
+                        <div style="font-weight: 700; font-size: 1.1rem; color: #f59e0b;">₹200</div>
+                        <div style="margin-top: 4px;">
+                            <span class="status-badge" style="background: rgba(234,179,8,0.15); color: #f59e0b; border: 1px solid rgba(234,179,8,0.3); font-size: 0.72rem;">
+                                <i class="fas fa-hourglass-half"></i> PENDING
+                            </span>
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted); padding: 50px;">Consultation record is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

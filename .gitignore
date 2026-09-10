@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.log
+*.db
+debug_ai.txt
+.env
+venv/
+.venv/

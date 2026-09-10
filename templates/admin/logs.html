@@ -1,0 +1,50 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}System Activity Logs{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="font-family: 'Outfit'; font-size: 2.2rem; font-weight: 700;">Clinical Stream</h1>
+        <p style="color: var(--text-muted);">Real-time monitoring of clinical triage interactions</p>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Outfit'; font-size: 1.5rem;"><i class="fas fa-history" style="color: var(--accent-blue); margin-right: 15px;"></i> Triage History</h2>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Syncing live feeds...</div>
+    </div>
+
+    {% if logs %}
+    <div style="overflow-x: auto;">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Timing</th>
+                    <th>Clinical Input</th>
+                    <th>System Response</th>
+                    <th>Urgency Analysis</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td><div style="font-size: 0.85rem; width: 150px;">{{ log.timestamp }}</div></td>
+                    <td><div style="font-style: italic; color: var(--text-muted); font-size: 0.9rem;">"{{ log.user_input }}"</div></td>
+                    <td><div style="font-size: 0.9rem; max-width: 400px; color: white;">{{ log.bot_response }}</div></td>
+                    <td>
+                        <span class="status-badge status-{{ 'rejected' if log.urgency in ('EMERGENCY', 'Emergency') else 'amber' if log.urgency in ('SERIOUS', 'Serious', 'HIGH', 'MEDIUM') else 'approved' }}">
+                            {{ log.urgency }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted); padding: 50px;">Log stream is inactive.</p>
+    {% endif %}
+</div>
+{% endblock %}
